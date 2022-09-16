@@ -74,9 +74,75 @@ namespace MyHttpClient
 
         }
 
+        static void httpUsingSendAsync()
+        {
+            string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
+
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.RequestUri = new Uri(getUrl);
+            httpRequestMessage.Method = HttpMethod.Get;
+            httpRequestMessage.Headers.Add("Accept", "application/json");
+
+            HttpClient client = new HttpClient();
+            Task<HttpResponseMessage> httpResponse = client.SendAsync(httpRequestMessage);
+           
+            
+            HttpResponseMessage httpResponseMessage = httpResponse.Result;
+            Console.WriteLine(httpResponseMessage.ToString());
+
+            //Status Code
+            HttpStatusCode statusCode = httpResponseMessage.StatusCode;
+            Console.WriteLine("status Code =>" + statusCode);
+            Console.WriteLine("status Code =>" + (int)statusCode);
+
+            //Response 
+            HttpContent responseContent = httpResponseMessage.Content;
+            Task<string> responseData = responseContent.ReadAsStringAsync();
+            string data = responseData.Result;
+            Console.WriteLine(data);
+
+            client.Dispose();
+
+        }
+
+        static void UsingStatement()
+        {
+            //Using "Using", it automatically dispose the resource after use.
+
+            string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
+            using (HttpClient client = new HttpClient())
+            {
+                using(HttpRequestMessage httpRequestMessage = new HttpRequestMessage())
+                {
+                    httpRequestMessage.RequestUri = new Uri(getUrl);
+                    httpRequestMessage.Method = HttpMethod.Get;
+                    httpRequestMessage.Headers.Add("Accept", "application/json");
+
+                    Task<HttpResponseMessage> httpResponse = client.SendAsync(httpRequestMessage);
+                    using(HttpResponseMessage httpResponseMessage = httpResponse.Result)
+                    {
+                        Console.WriteLine(httpResponseMessage.ToString());
+
+                        //Status Code
+                        HttpStatusCode statusCode = httpResponseMessage.StatusCode;
+                        Console.WriteLine("status Code =>" + statusCode);
+                        Console.WriteLine("status Code =>" + (int)statusCode);
+
+                        //Response 
+                        HttpContent responseContent = httpResponseMessage.Content;
+                        Task<string> responseData = responseContent.ReadAsStringAsync();
+                        string data = responseData.Result;
+                        Console.WriteLine(data);
+                    }
+                }
+            }
+        }
+
+
+
         static void Main(string[] args)
         {
-            httpGetInXML();
+            UsingStatement();
             Console.WriteLine("Adesina");
         }
     }
