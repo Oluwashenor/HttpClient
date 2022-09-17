@@ -1,4 +1,7 @@
-﻿using System;
+﻿using MyHttpClient.Model;
+using MyHttpClient.Model.JsonModel;
+using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -125,14 +128,17 @@ namespace MyHttpClient
 
                         //Status Code
                         HttpStatusCode statusCode = httpResponseMessage.StatusCode;
-                        Console.WriteLine("status Code =>" + statusCode);
-                        Console.WriteLine("status Code =>" + (int)statusCode);
+                        //Console.WriteLine("status Code =>" + statusCode);
+                        //Console.WriteLine("status Code =>" + (int)statusCode);
 
                         //Response 
                         HttpContent responseContent = httpResponseMessage.Content;
                         Task<string> responseData = responseContent.ReadAsStringAsync();
                         string data = responseData.Result;
-                        Console.WriteLine(data);
+                        //Console.WriteLine(data);
+
+                        RestResponse restResponse = new RestResponse((int)statusCode, responseData.Result);
+                        Console.WriteLine(restResponse.ToString());
                     }
                 }
             }
@@ -140,12 +146,58 @@ namespace MyHttpClient
 
 
 
+        static void UsingStatementJsonDeserialization()
+        {
+            //Using "Using", it automatically dispose the resource after use.
+
+            string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
+            using (HttpClient client = new HttpClient())
+            {
+                using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage())
+                {
+                    httpRequestMessage.RequestUri = new Uri(getUrl);
+                    httpRequestMessage.Method = HttpMethod.Get;
+                    httpRequestMessage.Headers.Add("Accept", "application/json");
+
+                    Task<HttpResponseMessage> httpResponse = client.SendAsync(httpRequestMessage);
+                    using (HttpResponseMessage httpResponseMessage = httpResponse.Result)
+                    {
+                        Console.WriteLine(httpResponseMessage.ToString());
+
+                        //Status Code
+                        HttpStatusCode statusCode = httpResponseMessage.StatusCode;
+                        //Console.WriteLine("status Code =>" + statusCode);
+                        //Console.WriteLine("status Code =>" + (int)statusCode);
+
+                        //Response 
+                        HttpContent responseContent = httpResponseMessage.Content;
+                        Task<string> responseData = responseContent.ReadAsStringAsync();
+                        string data = responseData.Result;
+                        //Console.WriteLine(data);
+
+                        RestResponse restResponse = new RestResponse((int)statusCode, responseData.Result);
+                        //Console.WriteLine(restResponse.ToString());
+                        Post? post = JsonConvert.DeserializeObject<Post>(restResponse.ResponseContent);
+                        Console.WriteLine(post?.ToString());
+                    }
+                }
+            }
+        }
+
+
+
+
+
         static void Main(string[] args)
         {
-            UsingStatement();
+            UsingStatementJsonDeserialization();
             Console.WriteLine("Adesina");
         }
     }
    
 }
-                
+           
+
+
+//Serialization - the process of converting the state of object to byte stream 
+//Deserialization , its a process of retriving the object from the byte stream 
