@@ -1,6 +1,8 @@
-﻿using MyHttpClient.Model;
+﻿using MyHttpClient.Helpers;
+using MyHttpClient.Model;
 using MyHttpClient.Model.JsonModel;
 using Newtonsoft.Json;
+using Steeltoe.Common.Http;
 using System;
 using System.Net;
 using System.Net.Http.Headers;
@@ -185,6 +187,15 @@ namespace MyHttpClient
         }
 
 
+        static void getUsingHelper()
+        {
+            Dictionary<string, string> httpHeaders = new Dictionary<string, string>();
+            httpHeaders.Add("Accept", "application/json");
+            //httpHeaders.Add("Authorization", "Basic Base64EncodedCredentials");//base64decode.org 
+            Base64StringConverter.GetBase64String("username", "password");
+
+            
+        }
 
 
 
