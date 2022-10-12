@@ -227,7 +227,8 @@ namespace MyHttpClient
                     using (HttpResponseMessage httpResponseMessage = httpResponse.Result)
                     {
                         var d = httpResponseMessage.ToString();
-                        var sam = httpResponseMessage.Content.ReadAsStringAsync();
+                        var sam = httpResponseMessage.Content.ReadAsStringAsync().Result;
+                        var result = JsonConvert.DeserializeObject<object>(sam);
                         //var same = httpResponsee.Content.ReadAsStringAsync();
 
                     }
