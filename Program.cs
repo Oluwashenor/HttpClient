@@ -6,39 +6,42 @@ using Steeltoe.Common.Http;
 using System;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MyHttpClient
 {
 
     public class Program
     {
-         string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
+        string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
 
         public void http()
         {
             //Create Client 
             HttpClient client = new HttpClient();
-            
-        
+
+
             //Close Connection and release resources
-            client.Dispose();   
+            client.Dispose();
         }
 
         static void httpGet()
         {
-           string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
-           HttpClient client = new HttpClient();
-           var uri = new Uri(getUrl);
-           
+            string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
+            HttpClient client = new HttpClient();
+            var uri = new Uri(getUrl);
+
             Task<HttpResponseMessage> httpResponse = client.GetAsync(uri);
             HttpResponseMessage httpResponseMessage = httpResponse.Result;
             Console.WriteLine(httpResponseMessage.ToString());
 
             //Status Code
             HttpStatusCode statusCode = httpResponseMessage.StatusCode;
-            Console.WriteLine("status Code =>"+statusCode);
-            Console.WriteLine("status Code =>"+(int)statusCode);
-           
+            Console.WriteLine("status Code =>" + statusCode);
+            Console.WriteLine("status Code =>" + (int)statusCode);
+
             //Response 
             HttpContent responseContent = httpResponseMessage.Content;
             Task<string> responseData = responseContent.ReadAsStringAsync();
@@ -57,7 +60,7 @@ namespace MyHttpClient
             HttpClient client = new HttpClient();
             HttpRequestHeaders requestHeader = client.DefaultRequestHeaders;
             requestHeader.Add("Accept", "application/xml");
-            
+
             var uri = new Uri(getUrl);
 
             Task<HttpResponseMessage> httpResponse = client.GetAsync(uri);
@@ -90,8 +93,8 @@ namespace MyHttpClient
 
             HttpClient client = new HttpClient();
             Task<HttpResponseMessage> httpResponse = client.SendAsync(httpRequestMessage);
-           
-            
+
+
             HttpResponseMessage httpResponseMessage = httpResponse.Result;
             Console.WriteLine(httpResponseMessage.ToString());
 
@@ -117,14 +120,14 @@ namespace MyHttpClient
             string getUrl = "https://jsonplaceholder.typicode.com/posts/1";
             using (HttpClient client = new HttpClient())
             {
-                using(HttpRequestMessage httpRequestMessage = new HttpRequestMessage())
+                using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage())
                 {
                     httpRequestMessage.RequestUri = new Uri(getUrl);
                     httpRequestMessage.Method = HttpMethod.Get;
                     httpRequestMessage.Headers.Add("Accept", "application/json");
 
                     Task<HttpResponseMessage> httpResponse = client.SendAsync(httpRequestMessage);
-                    using(HttpResponseMessage httpResponseMessage = httpResponse.Result)
+                    using (HttpResponseMessage httpResponseMessage = httpResponse.Result)
                     {
                         Console.WriteLine(httpResponseMessage.ToString());
 
@@ -194,7 +197,42 @@ namespace MyHttpClient
             //httpHeaders.Add("Authorization", "Basic Base64EncodedCredentials");//base64decode.org 
             Base64StringConverter.GetBase64String("username", "password");
 
-            
+
+        }
+
+        static void Post()
+        {
+
+            var obj = new
+            {
+                amount = "1000",
+                description = "Payment"
+            };
+            var myHeader = "customHeader";
+            using (var client = new HttpClient())
+            {
+                string url = "www.sampleurl.com";
+                using (var httpMessage = new HttpRequestMessage())
+                {
+                    httpMessage.Method = HttpMethod.Post;
+                    var json = JsonConvert.SerializeObject(obj);
+                    client.DefaultRequestHeaders.Clear();
+                    httpMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", myHeader);
+                    httpMessage.RequestUri = new Uri(url);
+                    //method A(Post Async)
+                    //HttpResponseMessage httpResponsee = await client.PostAsync(remitaApi, httpMessage.Content);
+                    //Method B(PostJson async)    
+                    Task<HttpResponseMessage> httpResponse = client.PostAsJsonAsync(url, obj);
+                    using (HttpResponseMessage httpResponseMessage = httpResponse.Result)
+                    {
+                        var d = httpResponseMessage.ToString();
+                        var sam = httpResponseMessage.Content.ReadAsStringAsync();
+                        //var same = httpResponsee.Content.ReadAsStringAsync();
+
+                    }
+                }
+            }
         }
 
 
@@ -205,9 +243,9 @@ namespace MyHttpClient
             Console.WriteLine("Adesina");
         }
     }
-   
+
 }
-           
+
 
 
 //Serialization - the process of converting the state of object to byte stream 
